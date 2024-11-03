@@ -10,6 +10,8 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../main.dart';
+
 class CreateJobController extends GetxController{
   final String baseUrl = 'https://e-labour-app.vercel.app/api/v1';
   
@@ -144,7 +146,7 @@ class CreateJobController extends GetxController{
     budgetController.clear();
     jobImage.value = null;
     selectedCategory.value = '';
-    Get.toNamed(AppRoutes.HOME);
+    Get.offAll(MainScreen(selectedIndex: 0));
   }
 
 

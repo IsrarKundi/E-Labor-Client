@@ -11,6 +11,7 @@ import 'notification_screen.dart' as custom_notification;
 import 'profile/views/profile_screen.dart';
 
 void main() {
+
   runApp(const MyApp());
   // Optional: Set preferred status bar styles (Android only)
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

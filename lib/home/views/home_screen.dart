@@ -1,4 +1,5 @@
 import 'package:e_labor/home/controllers/home_controller.dart';
+import 'package:e_labor/home/views/categories_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -6,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../helper/customcard.dart';
+import '../../main.dart';
 import '../../profile/controller/profile_controller.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -70,14 +72,19 @@ class HomeScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Obx(() {
-                          return CircleAvatar(
-                            radius: 30.0, // Adjust the radius as needed
-                            backgroundImage: profileController.profileImageUrl.isNotEmpty
-                                ? NetworkImage(profileController.profileImageUrl.value) // Load from network if URL is available
-                                : profileController.profileImage.value != null
-                                ? FileImage(profileController.profileImage.value!) // Load from file if picked image is available
-                                : AssetImage('images/person.png') as ImageProvider, // Default asset image if both are null
-                            backgroundColor: Colors.grey,
+                          return InkWell(
+                            onTap: (){
+                              Get.offAll(MainScreen(selectedIndex: 3));
+                            },
+                            child: CircleAvatar(
+                              radius: 30.0, // Adjust the radius as needed
+                              backgroundImage: profileController.imageUrl.isNotEmpty
+                                  ? NetworkImage(profileController.imageUrl.value) // Load from network if URL is available
+                                  // : profileController.profileImage.value != null
+                                  // ? FileImage(profileController.profileImage.value!) // Load from file if picked image is available
+                                  : AssetImage('images/person.png') as ImageProvider, // Default asset image if both are null
+                              backgroundColor: Colors.grey,
+                            ),
                           );
                         }),
                       ],
@@ -156,7 +163,7 @@ class HomeScreen extends StatelessWidget {
                             children: [
                               OutlinedButton.icon(
                                 onPressed: () {
-                                  // Handle button press action here
+                                  Get.to(() => CategoriesScreen());
                                 },
                                 icon: Icon(
                                   Icons.arrow_forward_ios_rounded,

@@ -52,6 +52,8 @@ class ProfileController extends GetxController {
   }
 
   ///........................Fetch User Profile............................
+
+  RxString imageUrl = ''.obs;
   Future<void> fetchUserProfile() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -64,6 +66,7 @@ class ProfileController extends GetxController {
             'Authorization': 'Bearer $token',  // Attach the Bearer token in the header
           },
         );
+        print('Response11111: ${response.body}');
         if (response.statusCode == 200) {
           // Parse the response body to get user details
           final responseBody = jsonDecode(response.body);
@@ -73,6 +76,8 @@ class ProfileController extends GetxController {
           email.value = responseBody['email'];
           role.value = responseBody['role'];
           lastActive.value = responseBody['lastActive'];
+          imageUrl.value = responseBody['image'];
+          print('Profile URL111111111: $imageUrl');
         } else {
           Get.snackbar(
             'Error',
