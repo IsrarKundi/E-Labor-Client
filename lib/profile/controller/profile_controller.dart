@@ -46,7 +46,7 @@ class ProfileController extends GetxController {
       final Directory directory = await getTemporaryDirectory();
       final File imageFile = File('${directory.path}/profile_image.jpg');
       await imageFile.writeAsBytes(imageBytes);
-      profileImage.value = imageFile;
+      pickedImage.value = imageFile;
       print('Profile image loaded from SharedPreferences');
     }
   }
@@ -105,7 +105,7 @@ class ProfileController extends GetxController {
 
   ///...........................Edit Profile Logic............................
 
-
+  var pickedImage = Rxn<File>();
 
   Future<void> pickImage(BuildContext context) async {
     try {
@@ -123,7 +123,7 @@ class ProfileController extends GetxController {
       final cancelToast = BotToast.showLoading();
 
       // Assign the picked image to the reactive variable
-      profileImage.value = image;
+      pickedImage.value = image;
 
       cancelToast(); // Cancel the loading toast
 
@@ -136,7 +136,6 @@ class ProfileController extends GetxController {
 
 
 
-  var profileImage = Rxn<File>();
   var profileImageUrl = RxString('');
 
   Future<void> editProfile(BuildContext context) async {
@@ -158,9 +157,9 @@ class ProfileController extends GetxController {
         print('request made');
 
         // If the profile image is selected, add it to the request
-        if (profileImage.value != null) {
+        if (pickedImage.value != null) {
           print('profile image not null');
-          var imageFile = profileImage.value!;
+          var imageFile = pickedImage.value!;
           var imageStream = http.ByteStream(imageFile.openRead());
           var imageLength = await imageFile.length();
 
@@ -180,7 +179,7 @@ class ProfileController extends GetxController {
         print(response.statusCode);
         // Check the response status
         if (response.statusCode == 200) {
-          List<int> imageBytes = await profileImage.value!.readAsBytes();
+          List<int> imageBytes = await pickedImage.value!.readAsBytes();
           String base64Image = base64Encode(imageBytes);
           await prefs.setString('profile_image', base64Image);
           print('Profile image saved to SharedPreferences');

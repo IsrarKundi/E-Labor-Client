@@ -38,6 +38,15 @@ class Registration extends StatelessWidget {
               // Adjusted for password visibility
 
               SizedBox(height: 20),
+              Obx(() => buildTextField(
+                'Password',
+                authController.passwordController, // Adjusted variable name: confirmPasswordController
+                obscureText: authController.isPasswordObscure.value,
+                onPressed: () {
+                  authController.isPasswordObscure.value = !authController.isPasswordObscure.value;
+                },
+              )),
+              SizedBox(height: 20),
               // Adjusted for confirm password visibility
               Obx(() => buildTextField(
                 'Confirm Password',

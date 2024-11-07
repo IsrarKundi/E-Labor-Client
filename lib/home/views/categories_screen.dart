@@ -1,4 +1,5 @@
 import 'package:e_labor/home/controllers/home_controller.dart';
+import 'package:e_labor/home/views/jobs_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -49,10 +50,69 @@ class CategoriesScreen extends StatelessWidget {
                 height: screenHeight * 0.6247,
                 width: screenWidth,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 26),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                   child: Column(
                     children: [
-
+                      Text('Categories',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24
+                        ),
+                      ),
+                      SizedBox(height: 22,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Previous Jobs',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Your previously created jobs',
+                                style: TextStyle(
+                                  color: Colors.grey[800],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Spacer(),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  Get.to(() => JobsScreen());
+                                },
+                                icon: Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  color: Colors.black,
+                                  size: 20,
+                                ),
+                                label: Text('View All', style: TextStyle(color: Colors.black)),
+                                style: ButtonStyle(
+                                  side: MaterialStateProperty.all(BorderSide(color: Colors.black, width: 2.0)),
+                                  backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                                  padding: MaterialStateProperty.all(EdgeInsets.only(left: 4, right: 8, top: 0, bottom: 0)),
+                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20,),
                       Expanded(
                         child: Obx(() {
                           if (homeController.categories.isEmpty) {
@@ -91,7 +151,8 @@ class CategoriesScreen extends StatelessWidget {
                             );
                           }
                         }),
-                      )
+                      ),
+
                     ],
                   ),
                 ),
