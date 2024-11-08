@@ -76,7 +76,7 @@ class JobsScreen extends StatelessWidget {
                                               job.category,
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 20,
+                                                fontSize: 14,
                                               ),
                                             ),
                                             Spacer(),
@@ -84,14 +84,32 @@ class JobsScreen extends StatelessWidget {
                                               height: 30,
                                               child: OutlinedButton.icon(
                                                 onPressed: () {
-                                                  Get.to(() => JobRequestsScreen());
+                                                  if (job.status == 'in-progress') {
+                                                    controller.markJobAsCompleted(job.id);
+                                                    // Action for marking job as finished
+                                                    // controller.markJobAsCompleted(); // Add your job completion logic here
+                                                  } if(job.status == 'completed'){
+                                                    _showDeleteDialog(context, job);
+                                                  }
+                                                  else {
+                                                    // Navigate to JobRequestsScreen if status is not 'in-progress'
+                                                    Get.to(() => JobRequestsScreen());
+                                                  }
                                                 },
                                                 icon: Icon(
-                                                  Icons.arrow_forward_ios_rounded,
+                                                  job.status == 'in-progress'
+                                                      ? Icons.check_circle_outline
+                                                      : Icons.arrow_forward_ios_rounded,
                                                   color: Color(0xfff67322),
                                                   size: 14,
                                                 ),
-                                                label: Text('Responses', style: TextStyle(color: Color(0xfff67322), fontSize: 12)),
+                                                label: Text(
+                                                  job.status == 'completed' ? 'Delete Job' : (job.status == 'in-progress' ? 'Mark as Completed' : 'Responses'),
+                                                  style: TextStyle(
+                                                    color: Color(0xfff67322),
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
                                                 style: ButtonStyle(
                                                   side: MaterialStateProperty.all(BorderSide(color: Color(0xfff67322), width: 2.0)),
                                                   backgroundColor: MaterialStateProperty.all(Colors.transparent),
@@ -104,6 +122,7 @@ class JobsScreen extends StatelessWidget {
                                                 ),
                                               ),
                                             ),
+
                                           ],
                                         ),
                                         SizedBox(height: 12),
@@ -156,9 +175,9 @@ class JobsScreen extends StatelessWidget {
                                         job.status,
                                         style: TextStyle(
                                           color: job.status == 'completed'
-                                              ? Colors.green
+                                              ? Colors.pinkAccent
                                               : (job.status == 'in-progress'
-                                              ? Colors.orange
+                                              ? Colors.green
                                               : Colors.blue),
                                         ),
                                       ),
@@ -248,6 +267,5 @@ class JobsScreen extends StatelessWidget {
       barrierDismissible: true, // Prevent dialog from closing by tapping outside
     );
   }
-
 
 }

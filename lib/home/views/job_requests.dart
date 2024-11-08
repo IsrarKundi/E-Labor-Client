@@ -130,21 +130,18 @@ class JobRequestsScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 16),
 
-                    // Accept Button
                     Row(
                       children: [
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-
+                                controller.acceptJobRequest(request.id);
+                                controller.fetchJobs();
 
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:  Color(0xfff67322),
-                              padding: EdgeInsets.symmetric(
-                                vertical: 2,
-                                horizontal: 16,
-                              ),
+                              backgroundColor: Color(0xfff67322),
+                              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),

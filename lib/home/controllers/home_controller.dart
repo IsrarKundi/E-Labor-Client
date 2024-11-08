@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,7 +26,7 @@ class HomeController extends GetxController{
     String? token = prefs.getString('auth_token');
 
     try {
-      print('Fetching jobs...');
+      print('Fetching jobs..................................');
       final response = await http.get(
         url,
         headers: {
@@ -37,7 +38,7 @@ class HomeController extends GetxController{
       print('Status Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        print('Response Body: ${response.body}');
+        // print('Fetching Jobs Response Body: ${response.body}');
 
         final responseData = json.decode(response.body);
         List<dynamic> jobsData = responseData['jobs'];
@@ -77,7 +78,6 @@ class HomeController extends GetxController{
       print('Status Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        print('Response Body: ${response.body}');
 
         // Parse the JSON response
         final responseData = json.decode(response.body);
@@ -110,7 +110,7 @@ class HomeController extends GetxController{
         },
       );
 
-      print('Status Code: ${response.statusCode}');
+      // print('Status Code: ${response.statusCode}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
@@ -196,7 +196,7 @@ class HomeController extends GetxController{
               .map((json) => JobRequest.fromJson(json ?? {}))
               .toList();
           jobRequests.value = requests;
-          print('Job requests fetched successfully.');
+          // print('Job requests fetched successfully.');
         } else {
           print('Error: jobRequests key is missing or not a list');
           Get.snackbar('Error', 'Invalid data format from server');
@@ -211,6 +211,184 @@ class HomeController extends GetxController{
     }
   }
 
+
+  var isJobAccepted = false.obs; // Observable for tracking job acceptance status
+
+  // Load Job Accepted Status from SharedPreferences
+  Future<void> _loadJobAcceptedStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isJobAccepted.value = prefs.getBool('isJobAccepted') ?? false;
+  }
+
+  // Accept Job Request API call
+  Future<void> acceptJobRequest(String requestId) async {
+    final url = '$baseUrl/client/job-requests/$requestId/accept';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    if (token == null) {
+      print('Error: Auth token is null');
+      Get.snackbar('Error', 'Authentication token is missing');
+      return;
+    }
+
+    try {
+      final response = await http.patch(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        print(responseData["message"]); // Handle response message
+
+        // Update flag and save to SharedPreferences
+        isJobAccepted.value = true;
+        await prefs.setBool('isJobAccepted', true);
+
+        // Display success snackbar and close the current screen
+        Get.snackbar('Success', responseData["message"]);
+        Get.back();
+      } else {
+        print('Failed to accept job request: ${response.statusCode}');
+        Get.snackbar('Error', 'Failed to accept job request');
+      }
+    } catch (e) {
+      print('Error accepting job request: $e');
+      Get.snackbar('Error', 'An error occurred while accepting the job request');
+    }
+  }
+
+  // Method to mark job as completed
+  Future<void> markJobAsCompleted(String jobId) async {
+    final url = Uri.parse('$baseUrl/client/mark-completed/$jobId');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Get.defaultDialog(
+          title: 'Job Completed',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Job marked as completed successfully!'),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();  // Close the dialog
+                  _showReviewDialog(jobId);  // Show review dialog
+                },
+                child: Text('Leave a Review'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        print('Failed to mark job as completed: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error marking job as completed: $e');
+    }
+  }
+
+  // Show review dialog
+  void _showReviewDialog(String jobId) {
+    Get.defaultDialog(
+      title: 'Submit Review',
+      content: ReviewDialog(jobId: jobId, submitReview: submitReview),
+    );
+  }
+
+  // Method to submit a review
+  Future<void> submitReview(String jobId, int rating, String review) async {
+    final url = Uri.parse('$baseUrl/client/add-review');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'jobId': jobId,
+          'rating': rating,
+          'review': review,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        Get.back();  // Close the review dialog
+        Get.snackbar('Success', 'Review submitted successfully');
+      } else {
+        print('Failed to submit review: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error submitting review: $e');
+    }
+  }
+}
+
+// Review dialog widget
+class ReviewDialog extends StatefulWidget {
+  final String jobId;
+  final Future<void> Function(String, int, String) submitReview;
+
+  ReviewDialog({required this.jobId, required this.submitReview});
+
+  @override
+  _ReviewDialogState createState() => _ReviewDialogState();
+}
+
+class _ReviewDialogState extends State<ReviewDialog> {
+  int _rating = 4;  // Default rating
+  final TextEditingController _reviewController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text('Rate the Service'),
+        SizedBox(height: 10),
+        DropdownButton<int>(
+          value: _rating,
+          items: [1, 2, 3, 4, 5]
+              .map((rating) => DropdownMenuItem(value: rating, child: Text(rating.toString())))
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              _rating = value ?? 4;
+            });
+          },
+        ),
+        TextField(
+          controller: _reviewController,
+          decoration: InputDecoration(labelText: 'Write your review'),
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            widget.submitReview(widget.jobId, _rating, _reviewController.text);
+          },
+          child: Text('Submit Review'),
+        ),
+      ],
+    );
+  }
 
 
 
@@ -304,12 +482,13 @@ class Job {
       estimatedTime: json['estimatedTime'],
       status: json['status'],
       imageUrl: json['imageUrl'],
-      completedBy: json['completedBy'] != null
+      completedBy: json['completedBy'] is Map<String, dynamic>
           ? CompletedBy.fromJson(json['completedBy'])
           : null,
     );
   }
 }
+
 
 ///................................Job Requests..................................
 

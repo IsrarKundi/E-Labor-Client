@@ -47,7 +47,7 @@ class ProfileController extends GetxController {
       final File imageFile = File('${directory.path}/profile_image.jpg');
       await imageFile.writeAsBytes(imageBytes);
       pickedImage.value = imageFile;
-      print('Profile image loaded from SharedPreferences');
+      // print('Profile image loaded from SharedPreferences');
     }
   }
 
@@ -66,7 +66,7 @@ class ProfileController extends GetxController {
             'Authorization': 'Bearer $token',  // Attach the Bearer token in the header
           },
         );
-        print('Response11111: ${response.body}');
+        // print('Response11111: ${response.body}');
         if (response.statusCode == 200) {
           // Parse the response body to get user details
           final responseBody = jsonDecode(response.body);
@@ -77,7 +77,7 @@ class ProfileController extends GetxController {
           role.value = responseBody['role'];
           lastActive.value = responseBody['lastActive'];
           imageUrl.value = responseBody['image'];
-          print('Profile URL111111111: $imageUrl');
+          // print('Profile URL111111111: $imageUrl');
         } else {
           Get.snackbar(
             'Error',
@@ -145,7 +145,7 @@ class ProfileController extends GetxController {
       String? token = prefs.getString('auth_token');  // Get the token from SharedPreferences
 
       if (token != null) {
-        print('token not null');
+        // print('token not null');
         // API URL
         String url = '$baseUrl/user/edit-profile';
 
@@ -154,11 +154,11 @@ class ProfileController extends GetxController {
           ..headers['Authorization'] = 'Bearer $token' // Attach the Bearer token
           ..fields['name'] = nameController.text
           ..fields['contact'] = contactController.text;
-        print('request made');
+        // print('request made');
 
         // If the profile image is selected, add it to the request
         if (pickedImage.value != null) {
-          print('profile image not null');
+          // print('profile image not null');
           var imageFile = pickedImage.value!;
           var imageStream = http.ByteStream(imageFile.openRead());
           var imageLength = await imageFile.length();
@@ -172,17 +172,17 @@ class ProfileController extends GetxController {
           ));
         }
 
-        print('before response');
+        // print('before response');
 
         // Send the request and get the response
         var response = await request.send();
-        print(response.statusCode);
+        // print(response.statusCode);
         // Check the response status
         if (response.statusCode == 200) {
           List<int> imageBytes = await pickedImage.value!.readAsBytes();
           String base64Image = base64Encode(imageBytes);
           await prefs.setString('profile_image', base64Image);
-          print('Profile image saved to SharedPreferences');
+          // print('Profile image saved to SharedPreferences');
 
           var responseBody = await http.Response.fromStream(response);
           final data = jsonDecode(responseBody.body);
