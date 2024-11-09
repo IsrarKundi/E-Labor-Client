@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../routes/app_routes.dart';
 import '../controllers/home_controller.dart';
 
 class JobRequestsScreen extends StatelessWidget {
@@ -134,9 +135,10 @@ class JobRequestsScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {
-                                controller.acceptJobRequest(request.id);
-                                controller.fetchJobs();
+                            onPressed: () async {
+                                // await controller.acceptJobRequest(request.id);
+                                Get.offNamed(AppRoutes.MAINSCREEN);
+                                // controller.fetchJobs();
 
                             },
                             style: ElevatedButton.styleFrom(

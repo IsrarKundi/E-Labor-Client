@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../routes/app_routes.dart';
 import '../views/single_job_screen.dart';
 
 class HomeController extends GetxController{
@@ -15,7 +16,7 @@ class HomeController extends GetxController{
   void onInit() {
     super.onInit();
     fetchCategories();
-    fetchJobs();
+    // fetchJobs();
 
   }
 
@@ -262,6 +263,7 @@ class HomeController extends GetxController{
     }
   }
 
+
   // Method to mark job as completed
   Future<void> markJobAsCompleted(String jobId) async {
     final url = Uri.parse('$baseUrl/client/mark-completed/$jobId');
@@ -277,22 +279,52 @@ class HomeController extends GetxController{
         },
       );
 
+
       if (response.statusCode == 200) {
+        fetchJobs();
         Get.defaultDialog(
-          title: 'Job Completed',
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Job marked as completed successfully!'),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  Get.back();  // Close the dialog
-                  _showReviewDialog(jobId);  // Show review dialog
-                },
-                child: Text('Leave a Review'),
-              ),
-            ],
+          title: 'Job Completed!',
+          content: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Job marked as completed successfully!',
+                  style: TextStyle(
+                      fontSize: 16
+                  ),
+                  textAlign: TextAlign.center,),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.back();
+                          showReviewDialog(jobId);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xfff67322),
+                          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 3,
+                        ),
+                        child: Text(
+                          'Leave a Review',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       } else {
@@ -304,7 +336,7 @@ class HomeController extends GetxController{
   }
 
   // Show review dialog
-  void _showReviewDialog(String jobId) {
+  void showReviewDialog(String jobId) {
     Get.defaultDialog(
       title: 'Submit Review',
       content: ReviewDialog(jobId: jobId, submitReview: submitReview),
@@ -360,33 +392,56 @@ class _ReviewDialogState extends State<ReviewDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text('Rate the Service'),
-        SizedBox(height: 10),
-        DropdownButton<int>(
-          value: _rating,
-          items: [1, 2, 3, 4, 5]
-              .map((rating) => DropdownMenuItem(value: rating, child: Text(rating.toString())))
-              .toList(),
-          onChanged: (value) {
-            setState(() {
-              _rating = value ?? 4;
-            });
-          },
-        ),
-        TextField(
-          controller: _reviewController,
-          decoration: InputDecoration(labelText: 'Write your review'),
-        ),
-        SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () {
-            widget.submitReview(widget.jobId, _rating, _reviewController.text);
-          },
-          child: Text('Submit Review'),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+      child: Column(
+        children: [
+          Text('Rate the Service'),
+          SizedBox(height: 10),
+          DropdownButton<int>(
+            value: _rating,
+            items: [1, 2, 3, 4, 5]
+                .map((rating) => DropdownMenuItem(value: rating, child: Text(rating.toString())))
+                .toList(),
+            onChanged: (value) {
+              setState(() {
+                _rating = value ?? 4;
+              });
+            },
+          ),
+          TextField(
+            controller: _reviewController,
+            decoration: InputDecoration(labelText: 'Write your review'),
+          ),
+          SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    widget.submitReview(widget.jobId, _rating, _reviewController.text);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xfff67322),  // Use red to indicate deletion
+                    padding: EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 30,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 3,
+                  ),
+                  child: Text(
+                    'Submit Review',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -457,7 +512,7 @@ class Job {
   final String description;
   final int budget;
   final int estimatedTime;
-  final String status;
+  late final String status;
   final String imageUrl;
   final CompletedBy? completedBy;
 

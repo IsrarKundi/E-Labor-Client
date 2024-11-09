@@ -8,6 +8,7 @@ class JobsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    controller.fetchJobs();
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -91,9 +92,9 @@ class JobsScreen extends StatelessWidget {
                                                   } if(job.status == 'completed'){
                                                     _showDeleteDialog(context, job);
                                                   }
-                                                  else {
+                                                  if(job.status == 'open') {
                                                     // Navigate to JobRequestsScreen if status is not 'in-progress'
-                                                    Get.to(() => JobRequestsScreen());
+                                                    Get.off(() => JobRequestsScreen());
                                                   }
                                                 },
                                                 icon: Icon(
@@ -203,66 +204,67 @@ class JobsScreen extends StatelessWidget {
   void _showDeleteDialog(BuildContext context, Job job) {
     Get.defaultDialog(
       title: 'Delete Job',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 6),
-            child: Text(
+      content: Padding(
+        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
               'Are you sure you want to delete this job?',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
-          ),
-          SizedBox(height: 16,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  controller.deleteJob(job.id);
-                  Get.back(); // Close the dialog
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xfff67322),  // Use red to indicate deletion
-                  padding: EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 34,
+            SizedBox(height: 16,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    await controller.deleteJob(job.id);
+                    await controller.fetchJobs();
+                    Get.back(); // Close the dialog
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xfff67322),  // Use red to indicate deletion
+                    padding: EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 30,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 3,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  child: Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.white),
                   ),
-                  elevation: 3,
                 ),
-                child: Text(
-                  'Delete',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              SizedBox(width: 40),
-              ElevatedButton(
-                onPressed: () {
-                  Get.back(); // Close the dialog without any action
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey, // Cancel button with a neutral color
-                  padding: EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 34,
+                Spacer(),
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back(); // Close the dialog without any action
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey, // Cancel button with a neutral color
+                    padding: EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 30,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 3,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.white),
                   ),
-                  elevation: 3,
                 ),
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
       barrierDismissible: true, // Prevent dialog from closing by tapping outside
     );
