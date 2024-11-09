@@ -222,7 +222,7 @@ class JobsScreen extends StatelessWidget {
                   onPressed: () async {
                     await controller.deleteJob(job.id);
                     await controller.fetchJobs();
-                    Get.back(); // Close the dialog
+                    // Get.back(); // Close the dialog
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xfff67322),  // Use red to indicate deletion

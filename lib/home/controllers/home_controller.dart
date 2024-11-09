@@ -98,11 +98,13 @@ class HomeController extends GetxController{
 
   // Method to delete a job
   Future<void> deleteJob(String jobId) async {
+    Get.back();
     final url = Uri.parse('$baseUrl/client/delete-job/$jobId');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
 
     try {
+      Center(child: CircularProgressIndicator());
       final response = await http.delete(
         url,
         headers: {
@@ -119,6 +121,7 @@ class HomeController extends GetxController{
 
         // Remove job from the list
         jobs.removeWhere((job) => job.id == jobId);
+        // Get.back();
         print('Job deleted successfully');
       } else {
         final error = json.decode(response.body);
