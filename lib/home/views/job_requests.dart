@@ -1,5 +1,8 @@
+import 'package:e_labor/home/views/job_request_map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:latlong2/latlong.dart';
+// import 'package:latlong2/latlong.dart';
 import '../../routes/app_routes.dart';
 import '../controllers/home_controller.dart';
 
@@ -136,7 +139,7 @@ class JobRequestsScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
-                              // await controller.acceptJobRequest(request.id);
+                              await controller.acceptJobRequest(request.id);
                               Get.offNamed(AppRoutes.MAINSCREEN);
                               // controller.fetchJobs();
                             },
@@ -171,8 +174,52 @@ class JobRequestsScreen extends StatelessWidget {
       // Floating Action Button
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Action when the button is pressed, e.g., navigating to the map screen
-          // Get.toNamed(AppRoutes.MAPSCREEN); // Ensure you have MAPSCREEN route defined
+
+          // Assuming `responseBody` is the API response body
+          final responseBody = {
+            "jobRequests": [
+              {
+                "_id": "6730c74b9179bddf93c2c77a",
+                "jobId": {
+                  "_id": "6730c7379179bddf93c2c768",
+                  "category": "Plumber",
+                  "estimatedTime": 4
+                },
+                "serviceProviderId": {
+                  "_id": "67264dd03b67b1a899d31bf7",
+                  "name": "dawar",
+                  "contact": "dfghh",
+                  "image": "https://res.cloudinary.com/dgxkxujec/image/upload/v1730564713/E_Labour/profile_pictures/file_hzuiqk.jpg"
+                },
+                "offeredPrice": 2500,
+                "status": "pending",
+                "createdAt": "2024-11-10T14:46:35.171Z"
+              }
+            ],
+            "coordinates": [
+              {
+                "lng": 71.48199698431253,
+                "lat": 34
+              }
+            ]
+          };
+
+// Extract coordinates directly from the root-level "coordinates" field
+          final coordinates = (responseBody['coordinates'] as List?)
+              ?.map((coordJson) => Coordinate.fromJson(coordJson))
+              .toList() ?? [];
+
+          print('COORDINATES: $coordinates');
+
+// Navigate to MapScreen with coordinates if available
+          if (coordinates.isNotEmpty) {
+            Get.to(() => MapScreen(coordinates: coordinates));
+          } else {
+            print('No coordinates available to display.');
+          }
+
+
+
         },
         backgroundColor: Color(0xfff67322),
         child: Icon(Icons.location_on_outlined, color: Colors.white, size: 30), // Icon representing map

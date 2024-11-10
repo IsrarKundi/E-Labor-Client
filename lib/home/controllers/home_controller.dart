@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../routes/app_routes.dart';
+import '../views/job_request_map_screen.dart';
 import '../views/single_job_screen.dart';
 
 class HomeController extends GetxController{
@@ -16,6 +17,7 @@ class HomeController extends GetxController{
   void onInit() {
     super.onInit();
     fetchCategories();
+
     // fetchJobs();
 
   }
@@ -38,8 +40,9 @@ class HomeController extends GetxController{
 
       print('Status Code: ${response.statusCode}');
 
+
       if (response.statusCode == 200) {
-        // print('Fetching Jobs Response Body: ${response.body}');
+        print('Fetching Jobs Api response Body: ${response.body}');
 
         final responseData = json.decode(response.body);
         List<dynamic> jobsData = responseData['jobs'];
@@ -194,13 +197,21 @@ class HomeController extends GetxController{
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('fetching job request api response body: ${response.body}');
 
         if (data['jobRequests'] != null && data['jobRequests'] is List) {
           final requests = (data['jobRequests'] as List)
               .map((json) => JobRequest.fromJson(json ?? {}))
               .toList();
           jobRequests.value = requests;
-          // print('Job requests fetched successfully.');
+
+          // Extract the coordinates and pass to the MapScreen
+          final coordinates = jobRequests.value
+              .expand((jobRequest) => jobRequest.coordinates)
+              .toList();
+
+          // Navigate to MapScreen with coordinates
+
         } else {
           print('Error: jobRequests key is missing or not a list');
           Get.snackbar('Error', 'Invalid data format from server');
@@ -550,6 +561,23 @@ class Job {
 
 ///................................Job Requests..................................
 
+class Coordinate {
+  final double latitude;
+  final double longitude;
+
+  Coordinate({required this.latitude, required this.longitude});
+
+  factory Coordinate.fromJson(Map<String, dynamic> json) {
+    // Ensure lat and lng are treated as doubles, even if they are ints
+    return Coordinate(
+      latitude: (json['lat'] is int ? (json['lat'] as int).toDouble() : json['lat'] ?? 0.0),
+      longitude: (json['lng'] is int ? (json['lng'] as int).toDouble() : json['lng'] ?? 0.0),
+    );
+  }
+}
+
+
+
 class JobRequest {
   final String id;
   final Job1 job;
@@ -557,6 +585,7 @@ class JobRequest {
   final int offeredPrice;
   final String status;
   final DateTime createdAt;
+  final List<Coordinate> coordinates;
 
   JobRequest({
     required this.id,
@@ -565,19 +594,27 @@ class JobRequest {
     required this.offeredPrice,
     required this.status,
     required this.createdAt,
+    required this.coordinates,
   });
 
   factory JobRequest.fromJson(Map<String, dynamic> json) {
+    // Parse coordinates from the 'coordinates' field if available
+    final coordinates = (json['coordinates'] as List?)
+        ?.map((coordJson) => Coordinate.fromJson(coordJson))
+        .toList() ?? [];
+
     return JobRequest(
-      id: json['_id'] ?? '',  // Provide a default empty string if null
+      id: json['_id'] ?? '',
       job: Job1.fromJson(json['jobId'] ?? {}),
       serviceProvider: ServiceProvider.fromJson(json['serviceProviderId'] ?? {}),
-      offeredPrice: json['offeredPrice'] ?? 0,  // Default to 0 if null
-      status: json['status'] ?? 'Unknown',  // Default to 'Unknown' if null
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),  // Default to current date if parsing fails
+      offeredPrice: json['offeredPrice'] ?? 0,
+      status: json['status'] ?? 'Unknown',
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      coordinates: coordinates,
     );
   }
 }
+
 
 
 class Job1 {
