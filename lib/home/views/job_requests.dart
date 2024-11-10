@@ -23,7 +23,7 @@ class JobRequestsScreen extends StatelessWidget {
           itemCount: controller.jobRequests.length,
           itemBuilder: (context, index) {
             final request = controller.jobRequests[index];
-            final imageUrl = request.serviceProvider.imageUrl;
+            final imageUrl = request.serviceProvider.image;
             print(imageUrl);
 
             return Card(
@@ -136,10 +136,9 @@ class JobRequestsScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
-                                // await controller.acceptJobRequest(request.id);
-                                Get.offNamed(AppRoutes.MAINSCREEN);
-                                // controller.fetchJobs();
-
+                              // await controller.acceptJobRequest(request.id);
+                              Get.offNamed(AppRoutes.MAINSCREEN);
+                              // controller.fetchJobs();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Color(0xfff67322),
@@ -165,16 +164,19 @@ class JobRequestsScreen extends StatelessWidget {
                 ),
               ),
             );
-
-
           },
         );
       }),
-    );
-  }
 
-  void _acceptJobRequest(String requestId) {
-    // Implement the logic to accept the job request
-    print('Job request $requestId accepted');
+      // Floating Action Button
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Action when the button is pressed, e.g., navigating to the map screen
+          // Get.toNamed(AppRoutes.MAPSCREEN); // Ensure you have MAPSCREEN route defined
+        },
+        backgroundColor: Color(0xfff67322),
+        child: Icon(Icons.location_on_outlined, color: Colors.white, size: 30), // Icon representing map
+      ),
+    );
   }
 }

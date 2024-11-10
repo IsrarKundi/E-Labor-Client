@@ -604,13 +604,13 @@ class ServiceProvider {
   final String id;
   final String name;
   final String contact;
-  final String imageUrl;  // New field for image URL
+  final String image;
 
   ServiceProvider({
     required this.id,
     required this.name,
     required this.contact,
-    required this.imageUrl,
+    required this.image,
   });
 
   factory ServiceProvider.fromJson(Map<String, dynamic> json) {
@@ -618,7 +618,7 @@ class ServiceProvider {
       id: json['_id'] ?? '',  // Default to empty string if null
       name: json['name'] ?? 'Unknown',  // Default to 'Unknown' if null
       contact: json['contact'] ?? 'N/A',  // Default to 'N/A' if null
-      imageUrl: json['imageUrl'] ?? 'https://via.placeholder.com/150',  // Placeholder URL if imageUrl is null
+      image: json['image'] ?? 'https://via.placeholder.com/150',  // Placeholder URL if imageUrl is null
     );
   }
 }
