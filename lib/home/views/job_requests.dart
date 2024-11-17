@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 // import 'package:latlong2/latlong.dart';
+import '../../authentication/controller/authentication_controller.dart';
 import '../../routes/app_routes.dart';
 import '../controllers/home_controller.dart';
 
@@ -173,7 +174,7 @@ class JobRequestsScreen extends StatelessWidget {
 
       // Floating Action Button
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
 
           // Assuming `responseBody` is the API response body
           final responseBody = {
@@ -203,21 +204,27 @@ class JobRequestsScreen extends StatelessWidget {
               }
             ]
           };
+          // Fetch user's current location using the Location class
+          final userLocation = Location();
+          await userLocation.getLocation();
 
-// Extract coordinates directly from the root-level "coordinates" field
+          // Extract coordinates from the API response
           final coordinates = (responseBody['coordinates'] as List?)
               ?.map((coordJson) => Coordinate.fromJson(coordJson))
-              .toList() ?? [];
+              .toList() ??
+              [];
 
-          print('COORDINATES: $coordinates');
+          // Add user's current location to the coordinates list
+          // coordinates.add(Coordinate(latitude: userLocation.latitude, longitude: userLocation.longitude));
 
-// Navigate to MapScreen with coordinates if available
+          print('All Coordinates: $coordinates');
+
+          // Navigate to the MapScreen with coordinates
           if (coordinates.isNotEmpty) {
-            Get.to(() => MapScreen(coordinates: coordinates));
+            Get.to(() => MapScreen(coordinates: coordinates, userLocation: LatLng(userLocation.latitude, userLocation.longitude)));
           } else {
             print('No coordinates available to display.');
           }
-
 
 
         },

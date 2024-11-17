@@ -6,8 +6,13 @@ import '../controllers/home_controller.dart';
 
 class MapScreen extends StatelessWidget {
   final List<Coordinate> coordinates; // List of coordinates passed into the widget
+  final LatLng userLocation; // User's current location
 
-  const MapScreen({Key? key, required this.coordinates}) : super(key: key);
+  const MapScreen({
+    Key? key,
+    required this.coordinates,
+    required this.userLocation,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -52,18 +57,28 @@ class MapScreen extends StatelessWidget {
           ),
           // MarkerLayer to display the coordinates as markers
           MarkerLayer(
-            markers: coordinates
-                .map(
-                  (coordinate) => Marker(
-                point: LatLng(coordinate.latitude, coordinate.longitude),
-                child: const Icon(
-                  Icons.location_on,
-                  color: Colors.red,
-                  size: 30,
+            markers: [
+              // User location marker with a distinct icon
+              Marker(
+                point: userLocation,
+                child:  const Icon(
+                  Icons.person_pin_circle_rounded,
+                  color: Colors.blue,
+                  size: 35,
                 ),
               ),
-            )
-                .toList(),
+              // Other locations
+              ...coordinates.map(
+                    (coordinate) => Marker(
+                  point: LatLng(coordinate.latitude, coordinate.longitude),
+                  child: const Icon(
+                    Icons.location_on,
+                    color: Colors.red,
+                    size: 30,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

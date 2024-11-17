@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:e_labor/authentication/views/login_screen.dart';
 import 'package:e_labor/authentication/views/verify_email_screen.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -149,8 +150,7 @@ class AuthenticationController extends GetxController {
       return;
     }
 
-    final double latitude = location.latitude;
-    final double longitude = location.longitude;
+
 
     print('before api hit');
     // Make the API request
@@ -231,7 +231,7 @@ class AuthenticationController extends GetxController {
     final response = await http.post(
       Uri.parse('https://e-labour-app.vercel.app/api/v1/auth/verify-email'), // Replace with your API URL
       body: {
-        'email': email, // Use the registered email stored in this controller
+        'email': email,
         'verificationOtp': otp, // Send the combined OTP
       },
     );
@@ -242,7 +242,7 @@ class AuthenticationController extends GetxController {
       Get.snackbar('Success', 'OTP verified successfully');
       print(response.body);
       // Navigate to the next screen or home screen
-      Get.offNamed('/main_screen');
+      Get.to(()=> LoginScreen());
     } else {
       Get.snackbar('Error', 'Invalid OTP, please try again');
     }
@@ -340,7 +340,7 @@ class Location {
   Future<void> getLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.low);
+          desiredAccuracy: LocationAccuracy.high);
       longitude = position.longitude;
       latitude = position.latitude;
 
